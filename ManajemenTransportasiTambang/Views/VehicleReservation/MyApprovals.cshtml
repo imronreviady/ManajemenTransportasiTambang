@@ -1,0 +1,86 @@
+@using ManajemenTransportasiTambang.Models
+@model IEnumerable<ReservationApproval>
+@{
+    ViewData["Title"] = "My Approvals";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="display-6 fw-bold">
+        <i class="bi bi-clipboard-check"></i> My Pending Approvals
+    </h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Reservations
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i> You have no pending approvals at this time.
+    </div>
+}
+else
+{
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Reservation ID</th>
+                            <th>Requested By</th>
+                            <th>Purpose</th>
+                            <th>Vehicle</th>
+                            <th>Dates</th>
+                            <th>Approval Level</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@(item.Reservation?.Id ?? 0)</td>
+                                <td>@(item.Reservation?.Requester?.FullName ?? "Unknown")</td>
+                                <td>@(item.Reservation?.Purpose ?? "Unknown")</td>
+                                <td>
+                                    @if (item.Reservation?.Vehicle != null)
+                                    {
+                                        <span>@item.Reservation.Vehicle.RegistrationNumber</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Unknown</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Reservation != null)
+                                    {
+                                        <span>@item.Reservation.StartDate.ToString("MMM dd") - @item.Reservation.EndDate.ToString("MMM dd")</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Unknown</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">Level @item.ApprovalLevel</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Approve" asp-route-id="@item.Reservation?.Id" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-check-circle"></i> Review
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Reservation?.Id" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-info-circle"></i> Details
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

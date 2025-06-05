@@ -1,0 +1,73 @@
+@using ManajemenTransportasiTambang.Models
+@model VehicleReservation
+@{
+    ViewData["Title"] = "Cancel Reservation";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="display-6 fw-bold">
+        <i class="bi bi-x-circle"></i> Cancel Reservation
+    </h1>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Details
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Confirm Cancellation</h5>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to cancel this reservation?</p>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Reservation ID</div>
+                    <div class="col-md-9">@Model.Id</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Purpose</div>
+                    <div class="col-md-9">@Model.Purpose</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Date Range</div>
+                    <div class="col-md-9">@Model.StartDate.ToString("MMM dd, yyyy HH:mm") - @Model.EndDate.ToString("MMM dd, yyyy HH:mm")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Vehicle</div>
+                    <div class="col-md-9">
+                        @(Model.Vehicle?.Brand ?? "") @(Model.Vehicle?.Model ?? "") (@(Model.Vehicle?.RegistrationNumber ?? ""))
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Driver</div>
+                    <div class="col-md-9">@(Model.Driver?.Name ?? "Not assigned")</div>
+                </div>
+                
+                <form asp-action="Cancel" method="post" class="mt-4">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    
+                    <div class="mb-3">
+                        <label for="cancellationReason" class="form-label">Cancellation Reason</label>
+                        <textarea id="cancellationReason" name="cancellationReason" class="form-control" rows="3" required></textarea>
+                        <div class="form-text">Please provide a reason for cancellation.</div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> This action cannot be undone.
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> No, Go Back
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check"></i> Yes, Cancel Reservation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,71 @@
+@using ManajemenTransportasiTambang.Models
+@model VehicleReservation
+@{
+    ViewData["Title"] = "Complete Reservation";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="display-6 fw-bold">
+        <i class="bi bi-check-circle"></i> Complete Reservation
+    </h1>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Details
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">Confirm Completion</h5>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to mark this reservation as completed?</p>
+                
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Reservation ID</div>
+                    <div class="col-md-9">@Model.Id</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Purpose</div>
+                    <div class="col-md-9">@Model.Purpose</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Requester</div>
+                    <div class="col-md-9">@(Model.Requester?.FullName ?? Model.Requester?.UserName ?? "Unknown")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Date Range</div>
+                    <div class="col-md-9">@Model.StartDate.ToString("MMM dd, yyyy HH:mm") - @Model.EndDate.ToString("MMM dd, yyyy HH:mm")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Vehicle</div>
+                    <div class="col-md-9">
+                        @(Model.Vehicle?.Brand ?? "") @(Model.Vehicle?.Model ?? "") (@(Model.Vehicle?.RegistrationNumber ?? ""))
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Driver</div>
+                    <div class="col-md-9">@(Model.Driver?.Name ?? "Not assigned")</div>
+                </div>
+                
+                <form asp-action="CompleteConfirmed" method="post" class="mt-4">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> This will mark the reservation as completed. The vehicle and driver will be available for other reservations.
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                            <i class="bi bi-x"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check2"></i> Mark as Completed
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

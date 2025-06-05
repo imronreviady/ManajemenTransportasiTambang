@@ -1,0 +1,70 @@
+@using ManajemenTransportasiTambang.Models
+@{
+    ViewData["Title"] = "Approve Reservation";
+    int reservationId = (int)ViewData["ReservationId"];
+    int approvalId = (int)ViewData["ApprovalId"];
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="display-6 fw-bold">
+        <i class="bi bi-clipboard-check"></i> Approve Reservation
+    </h1>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Approval Decision</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Approve" method="post">
+                    <input type="hidden" name="approvalId" value="@approvalId" />
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Decision</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="status" id="statusApprove" value="@ApprovalStatus.Approved" checked>
+                                <label class="form-check-label" for="statusApprove">
+                                    <i class="bi bi-check-circle text-success"></i> Approve
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="status" id="statusReject" value="@ApprovalStatus.Rejected">
+                                <label class="form-check-label" for="statusReject">
+                                    <i class="bi bi-x-circle text-danger"></i> Reject
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="comments" class="form-label">Comments</label>
+                        <textarea name="comments" id="comments" rows="3" class="form-control"></textarea>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Please note: This action cannot be undone after submission.
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Submit Decision
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <a asp-action="Details" asp-route-id="@reservationId" class="btn btn-info">
+            <i class="bi bi-info-circle"></i> View Full Reservation Details
+        </a>
+    </div>
+</div>

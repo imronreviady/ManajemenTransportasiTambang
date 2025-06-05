@@ -1,0 +1,104 @@
+@using ManajemenTransportasiTambang.Models
+@model IEnumerable<VehicleReservation>
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h1 class="display-6 fw-bold">
+        <i class="bi bi-calendar3"></i> Vehicle Reservations
+    </h1>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Create Reservation
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info" role="alert">
+        <i class="bi bi-info-circle"></i> No reservations found.
+    </div>
+}
+else
+{
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Purpose</th>
+                            <th>Requester</th>
+                            <th>Vehicle</th>
+                            <th>Driver</th>
+                            <th>Date Range</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.Purpose</td>
+                                <td>@item.Requester?.FullName</td>
+                                <td>@item.Vehicle?.RegistrationNumber</td>
+                                <td>@item.Driver?.Name</td>
+                                <td>@item.StartDate.ToString("MMM dd, yyyy") - @item.EndDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @switch (item.Status)
+                                    {
+                                        case ReservationStatus.Pending:
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                            break;
+                                        case ReservationStatus.PartiallyApproved:
+                                            <span class="badge bg-info">Partially Approved</span>
+                                            break;
+                                        case ReservationStatus.Approved:
+                                            <span class="badge bg-success">Approved</span>
+                                            break;
+                                        case ReservationStatus.Rejected:
+                                            <span class="badge bg-danger">Rejected</span>
+                                            break;
+                                        case ReservationStatus.Completed:
+                                            <span class="badge bg-secondary">Completed</span>
+                                            break;
+                                        case ReservationStatus.Cancelled:
+                                            <span class="badge bg-dark">Cancelled</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-info-circle"></i>
+                                        </a>
+                                        
+                                        @if (item.Status == ReservationStatus.Pending || item.Status == ReservationStatus.PartiallyApproved)
+                                        {
+                                            <a asp-action="Cancel" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        }
+                                        
+                                        @if (User.IsInRole("Admin") && item.Status == ReservationStatus.Approved)
+                                        {
+                                            <a asp-action="Complete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-success">
+                                                <i class="bi bi-check-circle"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

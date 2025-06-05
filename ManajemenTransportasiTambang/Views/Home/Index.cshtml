@@ -1,0 +1,170 @@
+﻿@using ManajemenTransportasiTambang.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@{
+    ViewData["Title"] = "Dashboard";
+    var chartLabels = ViewData["ChartLabels"] as List<string> ?? new List<string>();
+    var chartData = ViewData["ChartData"] as List<int> ?? new List<int>();
+    var pendingReservations = ViewData["PendingReservations"] as IEnumerable<VehicleReservation> ?? new List<VehicleReservation>();
+    var partiallyApprovedReservations = ViewData["PartiallyApprovedReservations"] as IEnumerable<VehicleReservation> ?? new List<VehicleReservation>();
+    var currentUserId = UserManager.GetUserId(User);
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1 class="display-6 fw-bold mb-3">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up"></i> Vehicle Usage Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="vehicleUsageChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-calendar-check"></i> Pending Approvals
+                </h5>
+            </div>
+            <div class="card-body">
+                <h1 class="display-3 text-center">@pendingReservations.Count()</h1>
+                <p class="text-center text-muted">Reservations waiting for approval</p>
+            </div>
+        </div>
+        
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-hourglass-split"></i> Partially Approved
+                </h5>
+            </div>
+            <div class="card-body">
+                <h1 class="display-3 text-center">@partiallyApprovedReservations.Count()</h1>
+                <p class="text-center text-muted">Reservations in approval process</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Approver"))
+{
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-warning">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> Reservations Requiring Your Approval
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (pendingReservations.Any(r => r.Approvals != null && r.Approvals.Any(a => a.ApproverId == currentUserId && a.Status == ApprovalStatus.Pending)))
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Purpose</th>
+                                        <th>Requester</th>
+                                        <th>Vehicle</th>
+                                        <th>Date Range</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reservation in pendingReservations.Where(r => r.Approvals != null && r.Approvals.Any(a => a.ApproverId == currentUserId && a.Status == ApprovalStatus.Pending)))
+                                    {
+                                        <tr>
+                                            <td>@reservation.Id</td>
+                                            <td>@reservation.Purpose</td>
+                                            <td>@reservation.Requester?.FullName</td>
+                                            <td>@reservation.Vehicle?.RegistrationNumber</td>
+                                            <td>@reservation.StartDate.ToString("dd/MM/yyyy") - @reservation.EndDate.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <a asp-controller="VehicleReservation" asp-action="Approve" asp-route-id="@reservation.Id" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-check-circle"></i> Review
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> You have no pending reservations to approve.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Set up the chart data
+        const labels = @Html.Raw(Json.Serialize(chartLabels));
+        const data = @Html.Raw(Json.Serialize(chartData));
+        
+        // Find the canvas element
+        const ctx = document.getElementById('vehicleUsageChart');
+        
+        // Create the chart
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Vehicles in Use',
+                    data: data,
+                    fill: true,
+                    backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                    borderColor: 'rgb(13, 110, 253)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Vehicles'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Vehicle Usage Over Time'
+                    }
+                }
+            }
+        });
+    </script>
+}
