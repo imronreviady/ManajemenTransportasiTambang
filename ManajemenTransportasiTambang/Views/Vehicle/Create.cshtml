@@ -1,0 +1,235 @@
+@model ManajemenTransportasiTambang.Models.Vehicle
+@{
+    ViewData["Title"] = "Add New Vehicle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Add New Vehicle</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Vehicle" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Vehicles</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Add New</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="material-symbols-outlined fs-20 me-2">directions_car</i>
+                    Vehicle Information
+                </h5>
+            </div>
+            <form asp-action="Create" method="post" class="p-4">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-0"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="RegistrationNumber" class="form-label fw-medium">Registration Number</label>
+                            <input asp-for="RegistrationNumber" class="form-control" placeholder="Enter registration number" />
+                            <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Year" class="form-label fw-medium">Year</label>
+                            <input asp-for="Year" class="form-control" type="number" min="1990" max="2050" />
+                            <span asp-validation-for="Year" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Brand" class="form-label fw-medium">Brand</label>
+                            <input asp-for="Brand" class="form-control" placeholder="Enter brand" />
+                            <span asp-validation-for="Brand" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Model" class="form-label fw-medium">Model</label>
+                            <input asp-for="Model" class="form-control" placeholder="Enter model" />
+                            <span asp-validation-for="Model" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Type" class="form-label fw-medium">Type</label>
+                            <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<VehicleType>()">
+                                <option value="">Select Type</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Capacity" class="form-label fw-medium">Capacity</label>
+                            <div class="input-group">
+                                <input asp-for="Capacity" class="form-control" type="number" min="1" />
+                                <span class="input-group-text">passengers</span>
+                            </div>
+                            <span asp-validation-for="Capacity" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="FuelConsumptionRate" class="form-label fw-medium">Fuel Consumption Rate</label>
+                            <div class="input-group">
+                                <input asp-for="FuelConsumptionRate" class="form-control" type="number" step="0.01" min="0" />
+                                <span class="input-group-text">L/100km</span>
+                            </div>
+                            <span asp-validation-for="FuelConsumptionRate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="LocationId" class="form-label fw-medium">Current Location</label>
+                            <select asp-for="LocationId" class="form-select" asp-items="ViewBag.LocationId">
+                                <option value="">Select Location</option>
+                            </select>
+                            <span asp-validation-for="LocationId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Ownership" class="form-label fw-medium">Ownership</label>
+                            <select asp-for="Ownership" class="form-select" asp-items="Html.GetEnumSelectList<VehicleOwnership>()">
+                                <option value="">Select Ownership</option>
+                            </select>
+                            <span asp-validation-for="Ownership" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <div class="form-check form-switch mt-4">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label fw-medium">Is Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="rentalDetails" class="rental-details-section border rounded p-3 mb-4" style="display:none;">
+                    <h6 class="mb-3">Rental Details</h6>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label asp-for="RentalCompany" class="form-label fw-medium">Rental Company</label>
+                                <input asp-for="RentalCompany" class="form-control" />
+                                <span asp-validation-for="RentalCompany" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RentalStartDate" class="form-label fw-medium">Rental Start Date</label>
+                                <input asp-for="RentalStartDate" class="form-control" type="date" />
+                                <span asp-validation-for="RentalStartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="RentalEndDate" class="form-label fw-medium">Rental End Date</label>
+                                <input asp-for="RentalEndDate" class="form-control" type="date" />
+                                <span asp-validation-for="RentalEndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="LastServiceDate" class="form-label fw-medium">Last Service Date</label>
+                            <input asp-for="LastServiceDate" class="form-control" type="date" />
+                            <span asp-validation-for="LastServiceDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="NextServiceDueDate" class="form-label fw-medium">Next Service Due Date</label>
+                            <input asp-for="NextServiceDueDate" class="form-control" type="date" />
+                            <span asp-validation-for="NextServiceDueDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label fw-medium">Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
+                    <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3">
+                        <span class="py-1 d-block">
+                            <i class="ri-arrow-left-line d-none d-sm-inline-block"></i>
+                            <span>Back to List</span>
+                        </span>
+                    </a>
+                    
+                    <button type="submit" class="btn btn-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                        <span class="py-1 d-block">
+                            <i class="ri-save-line d-none d-sm-inline-block"></i>
+                            <span>Save Vehicle</span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Show/hide rental details based on ownership selection
+            $('#Ownership').change(function() {
+                const ownershipValue = $(this).val();
+                if (ownershipValue === '1') { // 1 = Rented
+                    $('#rentalDetails').slideDown();
+                } else {
+                    $('#rentalDetails').slideUp();
+                    // Clear rental fields if ownership is not rental
+                    $('#RentalCompany').val('');
+                    $('#RentalStartDate').val('');
+                    $('#RentalEndDate').val('');
+                }
+            });
+            
+            // Trigger change event on page load to set initial state
+            $('#Ownership').trigger('change');
+        });
+    </script>
+}

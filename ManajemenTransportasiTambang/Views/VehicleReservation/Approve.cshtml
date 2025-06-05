@@ -1,70 +1,102 @@
 @using ManajemenTransportasiTambang.Models
 @{
     ViewData["Title"] = "Approve Reservation";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     int reservationId = (int)ViewData["ReservationId"];
     int approvalId = (int)ViewData["ApprovalId"];
 }
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <h1 class="display-6 fw-bold">
-        <i class="bi bi-clipboard-check"></i> Approve Reservation
-    </h1>
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to List
-    </a>
-</div>
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Approve Reservation</h3>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow mb-4">
-            <div class="card-header bg-primary text-white">
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="VehicleReservation" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Reservations</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Approve</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
                 <h5 class="card-title mb-0">Approval Decision</h5>
             </div>
-            <div class="card-body">
+            
+            <div class="p-4">
                 <form asp-action="Approve" method="post">
                     <input type="hidden" name="approvalId" value="@approvalId" />
                     
                     <div class="mb-4">
-                        <label class="form-label">Decision</label>
-                        <div class="d-flex gap-3">
+                        <label class="form-label fw-medium">Decision</label>
+                        <div class="d-flex gap-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="status" id="statusApprove" value="@ApprovalStatus.Approved" checked>
-                                <label class="form-check-label" for="statusApprove">
-                                    <i class="bi bi-check-circle text-success"></i> Approve
+                                <label class="form-check-label d-flex align-items-center gap-1" for="statusApprove">
+                                    <i class="material-symbols-outlined fs-18 text-success">check_circle</i> 
+                                    <span>Approve</span>
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="status" id="statusReject" value="@ApprovalStatus.Rejected">
-                                <label class="form-check-label" for="statusReject">
-                                    <i class="bi bi-x-circle text-danger"></i> Reject
+                                <label class="form-check-label d-flex align-items-center gap-1" for="statusReject">
+                                    <i class="material-symbols-outlined fs-18 text-danger">cancel</i> 
+                                    <span>Reject</span>
                                 </label>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <label for="comments" class="form-label">Comments</label>
-                        <textarea name="comments" id="comments" rows="3" class="form-control"></textarea>
+                        <label for="comments" class="form-label fw-medium">Comments</label>
+                        <textarea name="comments" id="comments" rows="3" class="form-control" placeholder="Add your comments here"></textarea>
                     </div>
                     
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle"></i> Please note: This action cannot be undone after submission.
+                    <div class="alert alert-warning bg-warning bg-opacity-10 border-0 p-3">
+                        <div class="d-flex align-items-center">
+                            <i class="material-symbols-outlined fs-20 me-2">warning</i>
+                            <span>Please note: This action cannot be undone after submission.</span>
+                        </div>
                     </div>
                     
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-action="Index" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Cancel
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
+                        <a asp-action="Details" asp-route-id="@reservationId" class="btn btn-outline-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="material-symbols-outlined fs-18 align-middle me-1">visibility</i>
+                                <span>View Reservation Details</span>
+                            </span>
                         </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-send"></i> Submit Decision
-                        </button>
+                        
+                        <div>
+                            <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3 me-2">
+                                <span class="py-1 d-block">
+                                    <i class="material-symbols-outlined fs-18 align-middle me-1">arrow_back</i>
+                                    <span>Back to List</span>
+                                </span>
+                            </a>
+                            <button type="submit" class="btn btn-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                                <span class="py-1 d-block">
+                                    <i class="material-symbols-outlined fs-18 align-middle me-1">send</i>
+                                    <span>Submit Decision</span>
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
-        
-        <a asp-action="Details" asp-route-id="@reservationId" class="btn btn-info">
-            <i class="bi bi-info-circle"></i> View Full Reservation Details
-        </a>
     </div>
 </div>

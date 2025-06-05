@@ -2,242 +2,308 @@
 @model VehicleReservation
 @{
     ViewData["Title"] = "Reservation Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <h1 class="display-6 fw-bold">
-        <i class="bi bi-info-circle"></i> Reservation Details
-    </h1>
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to List
-    </a>
-</div>
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Reservation Details</h3>
 
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="card-title mb-0">Reservation Information</h5>
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "VehicleReservation")" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Vehicle Reservations</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Reservation Details</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-xxl-8 col-lg-7">
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body py-4 px-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fs-18 fw-medium mb-0">Reservation #@Model.Id</h4>
+                        <span class="badge p-2 fs-12 fw-normal
+                    @(Model.Status switch
+                    {
+                        ReservationStatus.Pending => "bg-warning bg-opacity-10 text-warning",
+                        ReservationStatus.PartiallyApproved => "bg-info bg-opacity-10 text-info",
+                        ReservationStatus.Approved => "bg-success bg-opacity-10 text-success",
+                        ReservationStatus.Rejected => "bg-danger bg-opacity-10 text-danger",
+                        ReservationStatus.Completed => "bg-secondary bg-opacity-10 text-secondary",
+                        ReservationStatus.Cancelled => "bg-dark bg-opacity-10 text-dark",
+                        _ => "bg-secondary bg-opacity-10 text-secondary"
+                    })">
+                            @Model.Status.ToString()
+                        </span>
+                    </div>
+                    <div class="default-table-area">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <tbody>
+                                <tr>
+                                    <th scope="row" style="width: 30%;">Purpose</th>
+                                    <td>@Model.Purpose</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Requester</th>
+                                    <td>@Model.Requester?.FullName (@Model.Requester?.UserName)</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Department</th>
+                                    <td>@Model.Requester?.Department</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Request Date</th>
+                                    <td>@Model.RequestDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Start Date</th>
+                                    <td>@Model.StartDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">End Date</th>
+                                    <td>@Model.EndDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Origin</th>
+                                    <td>@Model.Origin</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Destination</th>
+                                    <td>@Model.Destination</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Estimated Distance</th>
+                                    <td>@Model.EstimatedDistance km</td>
+                                </tr>
+                                @if (Model.Status == ReservationStatus.Cancelled && !string.IsNullOrEmpty(Model.CancellationReason))
+                                {
+                                    <tr>
+                                        <th scope="row">Cancellation Reason</th>
+                                        <td>@Model.CancellationReason</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <th scope="row">Notes</th>
+                                    <td>@(string.IsNullOrEmpty(Model.Notes) ? "-" : Model.Notes)</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">ID</div>
-                    <div class="col-md-8">@Model.Id</div>
+        </div>
+         <div class="col-xxl-4 col-lg-5">
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fs-18 mb-4">Vehicle Information</h4>
+                    
+                    @if (Model.Vehicle != null)
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-car-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Registration Number</h4>
+                                    <span class="fs-15">@Model.Vehicle.RegistrationNumber</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-building-2-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Brand & Model</h4>
+                                    <span class="fs-15">@Model.Vehicle.Brand @Model.Vehicle.Model</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-roadster-fill wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Type</h4>
+                                    <span class="fs-15">@Model.Vehicle.Type</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-user-received-2-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Ownership</h4>
+                                    <span class="fs-15">@Model.Vehicle.Ownership</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-group-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Capacity</h4>
+                                    <span class="fs-15">@Model.Vehicle.Capacity</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">Vehicle information not available</div>
+                    }
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Purpose</div>
-                    <div class="col-md-8">@Model.Purpose</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Requester</div>
-                    <div class="col-md-8">@Model.Requester?.FullName (@Model.Requester?.UserName)</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Department</div>
-                    <div class="col-md-8">@Model.Requester?.Department</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Request Date</div>
-                    <div class="col-md-8">@Model.RequestDate.ToString("MMM dd, yyyy HH:mm")</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Start Date</div>
-                    <div class="col-md-8">@Model.StartDate.ToString("MMM dd, yyyy HH:mm")</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">End Date</div>
-                    <div class="col-md-8">@Model.EndDate.ToString("MMM dd, yyyy HH:mm")</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Origin</div>
-                    <div class="col-md-8">@Model.Origin</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Destination</div>
-                    <div class="col-md-8">@Model.Destination</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Estimated Distance</div>
-                    <div class="col-md-8">@Model.EstimatedDistance km</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Status</div>
-                    <div class="col-md-8">
-                        @switch (Model.Status)
-                        {
-                            case ReservationStatus.Pending:
-                                <span class="badge bg-warning text-dark">Pending</span>
-                                break;
-                            case ReservationStatus.PartiallyApproved:
-                                <span class="badge bg-info">Partially Approved</span>
-                                break;
-                            case ReservationStatus.Approved:
-                                <span class="badge bg-success">Approved</span>
-                                break;
-                            case ReservationStatus.Rejected:
-                                <span class="badge bg-danger">Rejected</span>
-                                break;
-                            case ReservationStatus.Completed:
-                                <span class="badge bg-secondary">Completed</span>
-                                break;
-                            case ReservationStatus.Cancelled:
-                                <span class="badge bg-dark">Cancelled</span>
-                                break;
-                        }
-                    </div>
-                </div>
-                @if (Model.Status == ReservationStatus.Cancelled && !string.IsNullOrEmpty(Model.CancellationReason))
-                {
-                    <div class="row mb-3">
-                        <div class="col-md-4 fw-bold">Cancellation Reason</div>
-                        <div class="col-md-8">@Model.CancellationReason</div>
-                    </div>
-                }
-                <div class="row mb-3">
-                    <div class="col-md-4 fw-bold">Notes</div>
-                    <div class="col-md-8">@(string.IsNullOrEmpty(Model.Notes) ? "-" : Model.Notes)</div>
+            </div>
+            
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <h4 class="fs-18 mb-4">Driver Information</h4>
+                    
+                    @if (Model.Driver != null)
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-user-3-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Driver Name</h4>
+                                    <span class="fs-15">@Model.Driver.Name</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-profile-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">License Number</h4>
+                                    <span class="fs-15">@Model.Driver.LicenseNumber</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-calendar-check-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">License Expiry</h4>
+                                    <span class="fs-15">@Model.Driver.LicenseExpiry.ToString("MMM dd, yyyy")</span>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="ri-phone-line wh-40 lh-40 d-inline-block bg-body-bg text-center fs-18 text-primary rounded-circle"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h4 class="mb-1 fs-14 fw-medium">Phone Number</h4>
+                                    <span class="fs-15">@Model.Driver.PhoneNumber</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">Driver information not available</div>
+                    }
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card shadow mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="card-title mb-0">Vehicle Information</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.Vehicle != null)
-                {
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Registration</div>
-                        <div class="col-md-7">@Model.Vehicle.RegistrationNumber</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Brand</div>
-                        <div class="col-md-7">@Model.Vehicle.Brand</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Model</div>
-                        <div class="col-md-7">@Model.Vehicle.Model</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Type</div>
-                        <div class="col-md-7">@Model.Vehicle.Type</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Ownership</div>
-                        <div class="col-md-7">@Model.Vehicle.Ownership</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Capacity</div>
-                        <div class="col-md-7">@Model.Vehicle.Capacity</div>
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning">Vehicle information not available</div>
-                }
-            </div>
-        </div>
 
-        <div class="card shadow mb-4">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0">Driver Information</h5>
-            </div>
-            <div class="card-body">
-                @if (Model.Driver != null)
-                {
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Name</div>
-                        <div class="col-md-7">@Model.Driver.Name</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">License</div>
-                        <div class="col-md-7">@Model.Driver.LicenseNumber</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">License Expiry</div>
-                        <div class="col-md-7">@Model.Driver.LicenseExpiry.ToString("MMM dd, yyyy")</div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-5 fw-bold">Phone</div>
-                        <div class="col-md-7">@Model.Driver.PhoneNumber</div>
-                    </div>
-                }
-                else
-                {
-                    <div class="alert alert-warning">Driver information not available</div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (Model.Approvals != null && Model.Approvals.Any())
-{
-    <div class="card shadow mb-4">
-        <div class="card-header bg-warning">
-            <h5 class="card-title mb-0">Approval History</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Level</th>
-                            <th>Approver</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Comments</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var approval in Model.Approvals.OrderBy(a => a.ApprovalLevel))
-                        {
-                            <tr>
-                                <td>@approval.ApprovalLevel</td>
-                                <td>@approval.Approver?.FullName</td>
-                                <td>
-                                    @switch (approval.Status)
+    <div class="row">
+        <div class="col-xxl-8 col-lg-7">
+            @if (Model.Approvals != null && Model.Approvals.Any())
+            {
+                <div class="card bg-white border-0 rounded-3 mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="fs-18 mb-4">Approval History</h4>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Level</th>
+                                        <th scope="col">Approver</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var approval in Model.Approvals.OrderBy(a => a.ApprovalLevel))
                                     {
-                                        case ApprovalStatus.Pending:
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                            break;
-                                        case ApprovalStatus.Approved:
-                                            <span class="badge bg-success">Approved</span>
-                                            break;
-                                        case ApprovalStatus.Rejected:
-                                            <span class="badge bg-danger">Rejected</span>
-                                            break;
+                                        <tr>
+                                            <td>@approval.ApprovalLevel</td>
+                                            <td>@approval.Approver?.FullName</td>
+                                            <td>
+                                                @switch (approval.Status)
+                                                {
+                                                    case ApprovalStatus.Pending:
+                                                        <span class="badge bg-warning bg-opacity-10 text-warning p-2 fs-12 fw-normal">Pending</span>
+                                                        break;
+                                                    case ApprovalStatus.Approved:
+                                                        <span class="badge bg-success bg-opacity-10 text-success p-2 fs-12 fw-normal">Approved</span>
+                                                        break;
+                                                    case ApprovalStatus.Rejected:
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger p-2 fs-12 fw-normal">Rejected</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@(approval.ApprovalDate?.ToString("MMM dd, yyyy HH:mm") ?? "-")</td>
+                                            <td>@(string.IsNullOrEmpty(approval.Comments) ? "-" : approval.Comments)</td>
+                                        </tr>
                                     }
-                                </td>
-                                <td>@(approval.ApprovalDate?.ToString("MMM dd, yyyy HH:mm") ?? "-")</td>
-                                <td>@(string.IsNullOrEmpty(approval.Comments) ? "-" : approval.Comments)</td>
-                            </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex flex-wrap gap-3">
+                        @if (Model.Status == ReservationStatus.Pending || Model.Status == ReservationStatus.PartiallyApproved)
+                        {
+                            <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-danger py-2 px-4 fw-medium fs-16 text-white">
+                                <i class="ri-close-circle-line me-1"></i> Cancel Reservation
+                            </a>
                         }
-                    </tbody>
-                </table>
+                        
+                        @if (User.IsInRole("Admin") && Model.Status == ReservationStatus.Approved)
+                        {
+                            <a asp-action="Complete" asp-route-id="@Model.Id" class="btn btn-success py-2 px-4 fw-medium fs-16 text-white">
+                                <i class="ri-check-double-line me-1"></i> Mark as Completed
+                            </a>
+                        }
+                        
+                        <a asp-action="Index" class="btn btn-primary py-2 px-4 fw-medium fs-16 text-white">
+                            <i class="ri-arrow-left-line me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+        
+       
     </div>
-}
-
-<div class="d-flex gap-2 mb-4">
-    @if (Model.Status == ReservationStatus.Pending || Model.Status == ReservationStatus.PartiallyApproved)
-    {
-        <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-danger">
-            <i class="bi bi-x-circle"></i> Cancel Reservation
-        </a>
-    }
-    
-    @if (User.IsInRole("Admin") && Model.Status == ReservationStatus.Approved)
-    {
-        <a asp-action="Complete" asp-route-id="@Model.Id" class="btn btn-success">
-            <i class="bi bi-check-circle"></i> Mark as Completed
-        </a>
-    }
-    
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to List
-    </a>
 </div>

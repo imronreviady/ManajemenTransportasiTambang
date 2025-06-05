@@ -2,72 +2,151 @@
 @model VehicleReservation
 @{
     ViewData["Title"] = "Cancel Reservation";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <h1 class="display-6 fw-bold">
-        <i class="bi bi-x-circle"></i> Cancel Reservation
-    </h1>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to Details
-    </a>
-</div>
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Cancel Reservation</h3>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow mb-4">
-            <div class="card-header bg-danger text-white">
-                <h5 class="card-title mb-0">Confirm Cancellation</h5>
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "VehicleReservation")" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Vehicle Reservations</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Details", "VehicleReservation", new { id = Model.Id })" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Reservation Details</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Cancel Reservation</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-4">
+                <div class="flex-shrink-0">
+                    <i class="ri-alert-line wh-50 lh-50 d-inline-block bg-danger bg-opacity-10 text-center fs-20 text-danger rounded-circle"></i>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                    <h4 class="fs-18 fw-medium mb-1">Cancel Reservation #@Model.Id</h4>
+                    <p class="text-secondary mb-0">Are you sure you want to cancel this reservation?</p>
+                </div>
             </div>
-            <div class="card-body">
-                <p>Are you sure you want to cancel this reservation?</p>
-                
-                <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Reservation ID</div>
-                    <div class="col-md-9">@Model.Id</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Purpose</div>
-                    <div class="col-md-9">@Model.Purpose</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Date Range</div>
-                    <div class="col-md-9">@Model.StartDate.ToString("MMM dd, yyyy HH:mm") - @Model.EndDate.ToString("MMM dd, yyyy HH:mm")</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Vehicle</div>
-                    <div class="col-md-9">
-                        @(Model.Vehicle?.Brand ?? "") @(Model.Vehicle?.Model ?? "") (@(Model.Vehicle?.RegistrationNumber ?? ""))
+
+            @if (Model.Status == ReservationStatus.Completed || Model.Status == ReservationStatus.Cancelled)
+            {
+                <div class="alert alert-danger bg-danger bg-opacity-10 border-0 p-3 mb-4">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="ri-error-warning-line fs-18 text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="mb-0">This reservation cannot be cancelled because it is already in <strong>@Model.Status</strong> status.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-3 fw-bold">Driver</div>
-                    <div class="col-md-9">@(Model.Driver?.Name ?? "Not assigned")</div>
+                
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary py-2 px-4 fw-medium fs-16 text-white">
+                        <i class="ri-arrow-go-back-line me-1"></i> Go Back
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="default-table-area mb-4">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <tbody>
+                                <tr>
+                                    <th scope="row" style="width: 25%;">Reservation ID</th>
+                                    <td>@Model.Id</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Purpose</th>
+                                    <td>@Model.Purpose</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Date Range</th>
+                                    <td>@Model.StartDate.ToString("MMM dd, yyyy HH:mm") - @Model.EndDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Vehicle</th>
+                                    <td>@(Model.Vehicle?.Brand ?? "") @(Model.Vehicle?.Model ?? "") (@(Model.Vehicle?.RegistrationNumber ?? ""))</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Driver</th>
+                                    <td>@(Model.Driver?.Name ?? "Not assigned")</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Current Status</th>
+                                    <td>
+                                        @if (Model.Status == ReservationStatus.Pending)
+                                        {
+                                            <span class="badge bg-warning text-dark">@Model.Status</span>
+                                        }
+                                        else if (Model.Status == ReservationStatus.PartiallyApproved)
+                                        {
+                                            <span class="badge bg-info">@Model.Status</span>
+                                        }
+                                        else if (Model.Status == ReservationStatus.Approved)
+                                        {
+                                            <span class="badge bg-success">@Model.Status</span>
+                                        }
+                                        else if (Model.Status == ReservationStatus.Rejected)
+                                        {
+                                            <span class="badge bg-danger">@Model.Status</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <form asp-action="Cancel" method="post" class="mt-4">
                     <input type="hidden" name="id" value="@Model.Id" />
                     
-                    <div class="mb-3">
-                        <label for="cancellationReason" class="form-label">Cancellation Reason</label>
-                        <textarea id="cancellationReason" name="cancellationReason" class="form-control" rows="3" required></textarea>
-                        <div class="form-text">Please provide a reason for cancellation.</div>
+                    <div class="form-group mb-4">
+                        <label for="cancellationReason" class="label text-secondary">Cancellation Reason</label>
+                        <textarea id="cancellationReason" name="cancellationReason" class="form-control" rows="5" required placeholder="Please provide a detailed reason for cancellation"></textarea>
+                        <div class="form-text small mt-1">This information will be logged in the system.</div>
                     </div>
                     
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle"></i> This action cannot be undone.
+                    <div class="alert alert-warning bg-warning bg-opacity-10 border-0 p-3">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="ri-error-warning-line fs-18 text-warning"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <p class="mb-0">This action cannot be undone. The reservation will be permanently cancelled.</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
-                            <i class="bi bi-x"></i> No, Go Back
+                    <div class="d-flex flex-wrap gap-3">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary py-2 px-4 fw-medium fs-16 text-white">
+                            <i class="ri-arrow-go-back-line me-1"></i> No, Go Back
                         </a>
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-check"></i> Yes, Cancel Reservation
+                        <button type="submit" class="btn btn-danger py-2 px-4 fw-medium fs-16 text-white">
+                            <i class="ri-close-circle-line me-1"></i> Yes, Cancel Reservation
                         </button>
                     </div>
                 </form>
-            </div>
+            }
         </div>
     </div>
 </div>

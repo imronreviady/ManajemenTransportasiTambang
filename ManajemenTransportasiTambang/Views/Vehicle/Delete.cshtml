@@ -1,0 +1,112 @@
+@model ManajemenTransportasiTambang.Models.Vehicle
+@{
+    ViewData["Title"] = "Delete Vehicle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Delete Vehicle</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Vehicle" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Vehicles</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Delete</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger bg-danger bg-opacity-10 border-0 mb-4">
+            <div class="d-flex align-items-center">
+                <i class="ri-error-warning-line fs-20 me-2"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+        </div>
+    }
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center text-danger">
+                    <i class="material-symbols-outlined fs-20 me-2">warning</i>
+                    Delete Vehicle Confirmation
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="alert alert-warning bg-warning bg-opacity-10 border-0">
+                    <div class="d-flex align-items-center">
+                        <i class="ri-alert-line fs-20 me-2"></i>
+                        <span>Are you sure you want to deactivate this vehicle? Once deactivated, the vehicle will no longer be available for reservations.</span>
+                    </div>
+                </div>
+
+                <div class="row mb-3 mt-4">
+                    <div class="col-md-4 fw-medium text-muted">Registration Number</div>
+                    <div class="col-md-8">@Model.RegistrationNumber</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-medium text-muted">Brand & Model</div>
+                    <div class="col-md-8">@Model.Brand @Model.Model (@Model.Year)</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-medium text-muted">Type</div>
+                    <div class="col-md-8">@Model.Type</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-medium text-muted">Current Location</div>
+                    <div class="col-md-8">@(Model.Location?.Name ?? "Not Assigned")</div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-medium text-muted">Status</div>
+                    <div class="col-md-8">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success bg-opacity-10 text-success p-2 fs-12 fw-normal">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger bg-opacity-10 text-danger p-2 fs-12 fw-normal">Inactive</span>
+                        }
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="ri-arrow-left-line d-none d-sm-inline-block"></i>
+                                <span>Back to List</span>
+                            </span>
+                        </a>
+                        
+                        <button type="submit" class="btn btn-danger py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="material-symbols-outlined fs-18 align-middle me-1">delete_forever</i>
+                                <span>Deactivate Vehicle</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

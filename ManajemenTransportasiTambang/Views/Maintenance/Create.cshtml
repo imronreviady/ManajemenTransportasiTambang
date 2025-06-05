@@ -1,0 +1,122 @@
+@model ManajemenTransportasiTambang.Models.MaintenanceRecord
+@{
+    ViewData["Title"] = "Add Maintenance Record";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Add Maintenance Record</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Maintenance" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Maintenance</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Add New</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="material-symbols-outlined fs-20 me-2">build</i>
+                    Maintenance Information
+                </h5>
+            </div>
+            <form asp-action="Create" method="post" class="p-4">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-0"></div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="VehicleId" class="form-label fw-medium">Vehicle</label>
+                            <select asp-for="VehicleId" class="form-select" asp-items="ViewBag.VehicleId">
+                                <option value="">Select Vehicle</option>
+                            </select>
+                            <span asp-validation-for="VehicleId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="ServiceDate" class="form-label fw-medium">Service Date</label>
+                            <input asp-for="ServiceDate" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="ServiceDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="ServiceProvider" class="form-label fw-medium">Service Provider</label>
+                            <input asp-for="ServiceProvider" class="form-control" placeholder="Enter service provider" />
+                            <span asp-validation-for="ServiceProvider" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="Cost" class="form-label fw-medium">Cost</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rp</span>
+                                <input asp-for="Cost" type="number" step="0.01" min="0" class="form-control" placeholder="0" />
+                            </div>
+                            <span asp-validation-for="Cost" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-medium">Service Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe the maintenance work performed"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Notes" class="form-label fw-medium">Additional Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Any additional notes (optional)"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+
+                <div class="alert alert-info bg-info bg-opacity-10 border-0 p-3 mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="ri-information-line fs-20 me-2"></i>
+                        <span>Recording a maintenance service will automatically update the vehicle's last service date and next service due date.</span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4">
+                    <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3">
+                        <span class="py-1 d-block">
+                            <i class="ri-arrow-left-line d-none d-sm-inline-block"></i>
+                            <span>Back to List</span>
+                        </span>
+                    </a>
+                    
+                    <button type="submit" class="btn btn-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                        <span class="py-1 d-block">
+                            <i class="ri-save-line d-none d-sm-inline-block"></i>
+                            <span>Save Record</span>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

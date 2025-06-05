@@ -1,0 +1,214 @@
+@model ManajemenTransportasiTambang.Models.Vehicle
+@{
+    ViewData["Title"] = "Vehicle Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Vehicle Details</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Vehicle" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Vehicles</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Details</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Vehicle Details Card -->
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom">
+                        <h5 class="card-title mb-0 d-flex align-items-center">
+                            <i class="material-symbols-outlined fs-20 me-2">directions_car</i>
+                            Vehicle Information
+                        </h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Registration Number</div>
+                            <div class="col-md-8">@Model.RegistrationNumber</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Brand & Model</div>
+                            <div class="col-md-8">@Model.Brand @Model.Model (@Model.Year)</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Type</div>
+                            <div class="col-md-8">@Model.Type</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Capacity</div>
+                            <div class="col-md-8">@Model.Capacity passengers</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Fuel Consumption Rate</div>
+                            <div class="col-md-8">@Model.FuelConsumptionRate L/100km</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Current Location</div>
+                            <div class="col-md-8">@(Model.Location?.Name ?? "Not Assigned")</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Status</div>
+                            <div class="col-md-8">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success p-2 fs-12 fw-normal">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger p-2 fs-12 fw-normal">Inactive</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Ownership</div>
+                            <div class="col-md-8">@Model.Ownership</div>
+                        </div>
+                        
+                        @if (Model.Ownership == VehicleOwnership.Rented)
+                        {
+                            <div class="border rounded p-3 mb-3 bg-light bg-opacity-25">
+                                <h6 class="mb-3">Rental Details</h6>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-medium text-muted">Rental Company</div>
+                                    <div class="col-md-8">@Model.RentalCompany</div>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-4 fw-medium text-muted">Rental Period</div>
+                                    <div class="col-md-8">
+                                        @(Model.RentalStartDate?.ToString("dd MMM yyyy") ?? "-") to 
+                                        @(Model.RentalEndDate?.ToString("dd MMM yyyy") ?? "-")
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Last Service Date</div>
+                            <div class="col-md-8">@Model.LastServiceDate.ToString("dd MMM yyyy")</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Next Service Due</div>
+                            <div class="col-md-8">
+                                @{
+                                    var daysUntilService = (Model.NextServiceDueDate - DateTime.Now).Days;
+                                }
+                                
+                                @Model.NextServiceDueDate.ToString("dd MMM yyyy")
+                                
+                                @if (daysUntilService < 0)
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger p-2 ms-2 fs-12 fw-normal">Overdue</span>
+                                }
+                                else if (daysUntilService <= 7)
+                                {
+                                    <span class="badge bg-warning bg-opacity-10 text-warning p-2 ms-2 fs-12 fw-normal">Due soon</span>
+                                }
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-medium text-muted">Notes</div>
+                                <div class="col-md-8">@Model.Notes</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Actions Card -->
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary py-2 fw-medium rounded-3">
+                                <i class="material-symbols-outlined align-middle me-1">edit</i> Edit Vehicle
+                            </a>
+                            <a asp-action="ToggleStatus" asp-route-id="@Model.Id" class="btn btn-outline-warning py-2 fw-medium rounded-3">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="d-flex align-items-center justify-content-center">
+                                        <i class="material-symbols-outlined align-middle me-1">block</i> Deactivate Vehicle
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="d-flex align-items-center justify-content-center">
+                                        <i class="material-symbols-outlined align-middle me-1">check_circle</i> Activate Vehicle
+                                    </span>
+                                }
+                            </a>
+                            <a asp-action="Index" class="btn btn-light py-2 fw-medium rounded-3">
+                                <i class="ri-arrow-left-line align-middle me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Maintenance Status Card -->
+            @if (Model.MaintenanceRecords != null && Model.MaintenanceRecords.Any())
+            {
+                <div class="card bg-white border-0 rounded-3 mb-4">
+                    <div class="card-body p-0">
+                        <div class="p-4 border-bottom">
+                            <h5 class="card-title mb-0">Recent Maintenance</h5>
+                        </div>
+                        <div class="p-4">
+                            <ul class="list-group list-group-flush">
+                                @foreach (var maintenance in Model.MaintenanceRecords.OrderByDescending(m => m.ServiceDate).Take(3))
+                                {
+                                    <li class="list-group-item px-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">@maintenance.Description</h6>
+                                                <small class="text-muted">@maintenance.ServiceDate.ToString("dd MMM yyyy")</small>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-success bg-opacity-10 text-success p-2 fs-12 fw-normal">Completed</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

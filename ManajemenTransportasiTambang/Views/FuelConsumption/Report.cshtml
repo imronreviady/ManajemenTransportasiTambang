@@ -1,0 +1,246 @@
+@model IEnumerable<ManajemenTransportasiTambang.Models.FuelConsumptionRecord>
+@{
+    ViewData["Title"] = "Fuel Consumption Report";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    
+    var summary = ViewData["Summary"] as dynamic;
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Fuel Consumption Report</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="FuelConsumption" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Fuel Records</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Report</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="material-symbols-outlined fs-20 me-2">assessment</i>
+                    Fuel Consumption Analysis
+                </h5>
+            </div>
+            
+            <!-- Report Parameters Form -->
+            <div class="p-4 bg-light bg-opacity-50">
+                <form asp-action="GenerateReport" method="post">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-md-0 mb-3">
+                                <label class="form-label fw-medium">Start Date</label>
+                                <input type="date" name="startDate" class="form-control" value="@ViewData["StartDate"]" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-md-0 mb-3">
+                                <label class="form-label fw-medium">End Date</label>
+                                <input type="date" name="endDate" class="form-control" value="@ViewData["EndDate"]" required />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-md-0 mb-3">
+                                <label class="form-label fw-medium">Vehicle (Optional)</label>
+                                <select name="vehicleId" class="form-select" asp-items="ViewBag.Vehicles">
+                                    <option value="">All Vehicles</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="material-symbols-outlined fs-18 align-middle me-1">search</i>
+                                <span>Generate Report</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Report Results -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="p-4">
+                    <div class="row">
+                        <!-- Summary Cards -->
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-2">Total Fuel</h6>
+                                    <h3 class="mb-0">@summary.TotalQuantity.ToString("N2") L</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-2">Total Cost</h6>
+                                    <h3 class="mb-0">@(summary.TotalCost.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-2">Avg Cost per Liter</h6>
+                                    <h3 class="mb-0">@(summary.AverageCostPerLiter.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-2">Records Count</h6>
+                                    <h3 class="mb-0">@summary.RecordsCount</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Vehicle Breakdown -->
+                    @if (summary.VehiclesSummary.Count > 0)
+                    {
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Vehicle Breakdown</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Vehicle</th>
+                                                <th>Fuel Quantity</th>
+                                                <th>Total Cost</th>
+                                                <th>Fill Count</th>
+                                                <th>Avg Cost per Liter</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var vehicle in summary.VehiclesSummary)
+                                            {
+                                                <tr>
+                                                    <td>@vehicle.RegistrationNumber</td>
+                                                    <td>@vehicle.TotalQuantity.ToString("N2") L</td>
+                                                    <td>@(vehicle.TotalCost.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</td>
+                                                    <td>@vehicle.FillCount</td>
+                                                    <td>@((vehicle.TotalQuantity > 0 ? vehicle.TotalCost / vehicle.TotalQuantity : 0).ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Detailed Records -->
+                    <div class="default-table-area style-two default-table-width">
+                        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                            <h6 class="mb-0">Detailed Records</h6>
+                            
+                            <a href="#" onclick="exportTableToCSV('fuel-records.csv')" class="btn btn-sm btn-outline-primary">
+                                <i class="material-symbols-outlined fs-16 align-middle me-1">download</i> Export CSV
+                            </a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table align-middle" id="fuelRecordsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fill Date</th>
+                                        <th>Vehicle</th>
+                                        <th>Quantity (L)</th>
+                                        <th>Cost</th>
+                                        <th>Odometer (km)</th>
+                                        <th>Cost per Liter</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OrderByDescending(f => f.FillDate))
+                                    {
+                                        <tr>
+                                            <td>@item.FillDate.ToString("dd MMM yyyy")</td>
+                                            <td>@item.Vehicle?.RegistrationNumber</td>
+                                            <td>@item.Quantity.ToString("N2")</td>
+                                            <td>@(item.Cost.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</td>
+                                            <td>@item.Odometer.ToString("N0")</td>
+                                            <td>@((item.Quantity > 0 ? item.Cost / item.Quantity : 0).ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (Model != null)
+            {
+                <div class="alert alert-info m-4" role="alert">
+                    <i class="ri-information-line me-2"></i> No fuel records found for the specified criteria.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportTableToCSV(filename) {
+            var csv = [];
+            var rows = document.querySelectorAll("#fuelRecordsTable tr");
+            
+            for (var i = 0; i < rows.length; i++) {
+                var row = [], cols = rows[i].querySelectorAll("td, th");
+                
+                for (var j = 0; j < cols.length; j++) {
+                    // Replace HTML entities and remove commas to avoid CSV issues
+                    let text = cols[j].innerText.replace(/,/g, " ");
+                    row.push('"' + text + '"');
+                }
+                
+                csv.push(row.join(","));        
+            }
+
+            // Download CSV file
+            downloadCSV(csv.join("\n"), filename);
+        }
+
+        function downloadCSV(csv, filename) {
+            var csvFile;
+            var downloadLink;
+
+            // Create CSV file
+            csvFile = new Blob([csv], {type: "text/csv"});
+
+            // Create download link
+            downloadLink = document.createElement("a");
+            downloadLink.download = filename;
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = "none";
+
+            // Add the link to DOM and click it
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+    </script>
+}

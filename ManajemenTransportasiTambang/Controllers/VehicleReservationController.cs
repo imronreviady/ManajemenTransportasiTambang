@@ -30,8 +30,11 @@ public class VehicleReservationController : Controller
     }
 
     // GET: VehicleReservation
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string searchString, int page = 1)
     {
+        // Page size - number of items per page
+        int pageSize = 10;
+        
         var user = await _userManager.GetUserAsync(User);
         IEnumerable<VehicleReservation> reservations;
 
@@ -49,7 +52,41 @@ public class VehicleReservationController : Controller
                 : Enumerable.Empty<VehicleReservation>();
         }
 
-        return View(reservations);
+        // Apply search filter if provided
+        if (!string.IsNullOrEmpty(searchString))
+        {
+            searchString = searchString.ToLower();
+            reservations = reservations.Where(r => 
+                r.Purpose.ToLower().Contains(searchString) ||
+                (r.Requester?.FullName?.ToLower().Contains(searchString) ?? false) ||
+                (r.Vehicle?.RegistrationNumber?.ToLower().Contains(searchString) ?? false) ||
+                (r.Driver?.Name?.ToLower().Contains(searchString) ?? false) ||
+                r.Id.ToString().Contains(searchString)
+            );
+
+            ViewData["CurrentFilter"] = searchString;
+        }
+
+        // Calculate total items and pages
+        int totalItems = reservations.Count();
+        int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+        
+        // Ensure page is within valid range
+        page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
+        
+        // Get the current page of items
+        var pagedReservations = reservations
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize);
+            
+        // Store pagination data for the view
+        ViewData["CurrentPage"] = page;
+        ViewData["TotalPages"] = totalPages;
+        ViewData["TotalItems"] = totalItems;
+        ViewData["HasPreviousPage"] = page > 1;
+        ViewData["HasNextPage"] = page < totalPages;
+
+        return View(pagedReservations);
     }
 
     // GET: VehicleReservation/Details/5
@@ -165,6 +202,21 @@ public class VehicleReservationController : Controller
         if (approval == null)
         {
             return NotFound("You are not assigned to approve this reservation.");
+        }
+
+        // Check if all previous levels are approved before allowing this level to approve
+        if (approval.ApprovalLevel > 1)
+        {
+            // Check all previous approval levels
+            for (int i = 1; i < approval.ApprovalLevel; i++)
+            {
+                var previousApproval = reservation.Approvals?.FirstOrDefault(a => a.ApprovalLevel == i);
+                if (previousApproval == null || previousApproval.Status != ApprovalStatus.Approved)
+                {
+                    TempData["ErrorMessage"] = $"Level {i} approval is required before you can approve this request.";
+                    return RedirectToAction(nameof(MyApprovals));
+                }
+            }
         }
 
         ViewData["ReservationId"] = id;

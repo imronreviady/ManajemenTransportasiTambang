@@ -248,6 +248,24 @@ public class VehicleReservationService : IVehicleReservationService
 
     private async Task<bool> CanApproveAtThisLevel(ReservationApproval approval)
     {
+        // First check if the reservation is already rejected
+        if (approval.Reservation.Status == ReservationStatus.Rejected)
+        {
+            return false;
+        }
+
+        // Check if any approvals at previous levels have been rejected
+        var anyRejections = await _context.ReservationApprovals
+            .Where(a => a.ReservationId == approval.ReservationId && 
+                   a.ApprovalLevel < approval.ApprovalLevel && 
+                   a.Status == ApprovalStatus.Rejected)
+            .AnyAsync();
+            
+        if (anyRejections)
+        {
+            return false;
+        }
+        
         // Check if all approvals at previous levels are approved
         for (int i = 1; i < approval.ApprovalLevel; i++)
         {

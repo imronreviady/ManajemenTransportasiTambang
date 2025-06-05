@@ -1,43 +1,61 @@
 @{
     ViewData["Title"] = "Reservation Reports";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var startDate = ViewData["StartDate"] as string;
     var endDate = ViewData["EndDate"] as string;
     var statuses = ViewBag.Statuses as SelectList;
 }
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
-    <h1 class="display-6 fw-bold">
-        <i class="bi bi-file-earmark-excel"></i> Reservation Reports
-    </h1>
-    <a asp-action="Index" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> Back to List
-    </a>
-</div>
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Reservation Reports</h3>
 
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white">
-                <h5 class="card-title mb-0">Export Reservation Data</h5>
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="VehicleReservation" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Reservations</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Reports</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center">
+                    <i class="material-symbols-outlined fs-20 me-2">summarize</i>
+                    Export Reservation Data
+                </h5>
             </div>
-            <div class="card-body">
+            <div class="p-4">
                 <form asp-action="ExportReport" method="post">
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="startDate" class="form-label">Start Date</label>
+                                <label for="startDate" class="form-label fw-medium">Start Date</label>
                                 <input type="date" id="startDate" name="startDate" class="form-control" value="@startDate" required />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="endDate" class="form-label">End Date</label>
+                                <label for="endDate" class="form-label fw-medium">End Date</label>
                                 <input type="date" id="endDate" name="endDate" class="form-control" value="@endDate" required />
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="status" class="form-label">Status (Optional)</label>
+                                <label for="status" class="form-label fw-medium">Status (Optional)</label>
                                 <select id="status" name="status" class="form-select">
                                     <option value="">All Statuses</option>
                                     @foreach (var item in statuses)
@@ -49,13 +67,26 @@
                         </div>
                     </div>
                     
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> The report will include all reservations within the selected date range. If a status is selected, only reservations with that status will be included.
+                    <div class="alert alert-info bg-info bg-opacity-10 border-0 p-3 mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="ri-information-line fs-20 me-2"></i>
+                            <span>The report will include all reservations within the selected date range. If a status is selected, only reservations with that status will be included.</span>
+                        </div>
                     </div>
                     
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-file-earmark-excel"></i> Generate Excel Report
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="ri-arrow-left-line d-none d-sm-inline-block"></i>
+                                <span>Back to List</span>
+                            </span>
+                        </a>
+                        
+                        <button type="submit" class="btn btn-primary py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="material-symbols-outlined fs-18 align-middle me-1">download</i>
+                                <span>Generate Excel Report</span>
+                            </span>
                         </button>
                     </div>
                 </form>

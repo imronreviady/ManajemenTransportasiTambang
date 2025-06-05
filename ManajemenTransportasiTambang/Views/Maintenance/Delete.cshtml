@@ -1,0 +1,101 @@
+@model ManajemenTransportasiTambang.Models.MaintenanceRecord
+@{
+    ViewData["Title"] = "Delete Maintenance Record";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Delete Maintenance Record</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Maintenance" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Maintenance</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Delete</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="p-4 border-bottom">
+                <h5 class="card-title mb-0 d-flex align-items-center text-danger">
+                    <i class="material-symbols-outlined fs-20 me-2">warning</i>
+                    Delete Maintenance Record Confirmation
+                </h5>
+            </div>
+            <div class="p-4">
+                <div class="alert alert-warning bg-warning bg-opacity-10 border-0">
+                    <div class="d-flex align-items-center">
+                        <i class="ri-alert-line fs-20 me-2"></i>
+                        <span>Are you sure you want to delete this maintenance record? This action cannot be undone.</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 border rounded">
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-medium text-muted">Vehicle</div>
+                        <div class="col-md-8">
+                            @(Model.Vehicle?.RegistrationNumber ?? "Unknown")
+                            @if (Model.Vehicle != null)
+                            {
+                                <span>(@Model.Vehicle.Brand @Model.Vehicle.Model)</span>
+                            }
+                        </div>
+                    </div>
+                        
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-medium text-muted">Service Date</div>
+                        <div class="col-md-8">@Model.ServiceDate.ToString("dd MMMM yyyy")</div>
+                    </div>
+                        
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-medium text-muted">Description</div>
+                        <div class="col-md-8">@Model.Description</div>
+                    </div>
+                        
+                    <div class="row mb-3">
+                        <div class="col-md-4 fw-medium text-muted">Service Provider</div>
+                        <div class="col-md-8">@(Model.ServiceProvider ?? "-")</div>
+                    </div>
+                        
+                    <div class="row mb-0">
+                        <div class="col-md-4 fw-medium text-muted">Cost</div>
+                        <div class="col-md-8">@(Model.Cost.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</div>
+                    </div>
+                </div>
+
+                <form asp-action="Delete" method="post" class="mt-4">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <a asp-action="Index" class="btn btn-light py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="ri-arrow-left-line d-none d-sm-inline-block"></i>
+                                <span>Back to List</span>
+                            </span>
+                        </a>
+                        
+                        <button type="submit" class="btn btn-danger py-1 px-4 fs-14 fw-medium rounded-3">
+                            <span class="py-1 d-block">
+                                <i class="material-symbols-outlined fs-18 align-middle me-1">delete_forever</i>
+                                <span>Delete Record</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

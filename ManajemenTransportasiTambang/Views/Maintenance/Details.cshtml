@@ -1,0 +1,115 @@
+@model ManajemenTransportasiTambang.Models.MaintenanceRecord
+@{
+    ViewData["Title"] = "Maintenance Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Maintenance Details</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Maintenance" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Maintenance</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Details</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Maintenance Details Card -->
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom">
+                        <h5 class="card-title mb-0 d-flex align-items-center">
+                            <i class="material-symbols-outlined fs-20 me-2">build</i>
+                            Maintenance Information
+                        </h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Vehicle</div>
+                            <div class="col-md-8">
+                                <a asp-controller="Vehicle" asp-action="Details" asp-route-id="@Model.VehicleId">
+                                    @(Model.Vehicle?.RegistrationNumber ?? "Unknown")
+                                    @if (Model.Vehicle != null)
+                                    {
+                                        <span>(@Model.Vehicle.Brand @Model.Vehicle.Model)</span>
+                                    }
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Service Date</div>
+                            <div class="col-md-8">@Model.ServiceDate.ToString("dd MMMM yyyy")</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Description</div>
+                            <div class="col-md-8">@Model.Description</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Service Provider</div>
+                            <div class="col-md-8">@(Model.ServiceProvider ?? "-")</div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4 fw-medium text-muted">Cost</div>
+                            <div class="col-md-8">@(Model.Cost.ToString("N0", new System.Globalization.CultureInfo("id-ID"))) Rp</div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-medium text-muted">Additional Notes</div>
+                                <div class="col-md-8">@Model.Notes</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <!-- Actions Card -->
+            <div class="card bg-white border-0 rounded-3 mb-4">
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom">
+                        <h5 class="card-title mb-0">Actions</h5>
+                    </div>
+                    <div class="p-4">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary py-2 fw-medium rounded-3">
+                                <i class="material-symbols-outlined align-middle me-1">edit</i> Edit Record
+                            </a>
+                            <a asp-controller="Vehicle" asp-action="Details" asp-route-id="@Model.VehicleId" class="btn btn-outline-info py-2 fw-medium rounded-3">
+                                <i class="material-symbols-outlined align-middle me-1">directions_car</i> View Vehicle
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger py-2 fw-medium rounded-3">
+                                <i class="material-symbols-outlined align-middle me-1">delete</i> Delete Record
+                            </a>
+                            <a asp-action="Index" class="btn btn-light py-2 fw-medium rounded-3">
+                                <i class="ri-arrow-left-line align-middle me-1"></i> Back to List
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
