@@ -1,0 +1,100 @@
+@model ManajemenTransportasiTambang.Models.Location
+
+@{
+    ViewData["Title"] = "Add New Location";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int? regionId = null;
+    if (ViewData["RegionId"] is SelectList regionList && regionList.SelectedValue != null)
+    {
+        regionId = int.Parse(regionList.SelectedValue.ToString());
+    }
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Add New Location</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Region" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Regions</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Location" asp-action="Index" asp-route-regionId="@regionId" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Locations</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Add New</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-header bg-transparent py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="ri-map-pin-line me-2 text-primary"></i>
+                    Location Details
+                </h5>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="RegionId" class="form-label fw-medium">Region</label>
+                        <select asp-for="RegionId" asp-items="ViewBag.RegionId" class="form-select">
+                            <option value="">-- Select Region --</option>
+                        </select>
+                        <span asp-validation-for="RegionId" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Type" class="form-label fw-medium">Location Type</label>
+                        <select asp-for="Type" asp-items="ViewBag.LocationTypes" class="form-select">
+                            <option value="">-- Select Location Type --</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-danger small"></span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-medium">Location Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter location name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                
+                <div class="mb-3">
+                    <label asp-for="Address" class="form-label fw-medium">Address</label>
+                    <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter location address (optional)"></textarea>
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+                
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="ri-save-line me-1"></i> Save Location
+                    </button>
+                    <a asp-action="Index" asp-route-regionId="@regionId" class="btn btn-outline-secondary px-4">
+                        <i class="ri-arrow-go-back-line me-1"></i> Back to List
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

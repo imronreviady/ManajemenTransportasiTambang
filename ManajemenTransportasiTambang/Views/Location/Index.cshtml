@@ -1,0 +1,224 @@
+@model IEnumerable<ManajemenTransportasiTambang.Models.Location>
+
+@{
+    ViewData["Title"] = "Locations";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+    string currentFilter = ViewData["CurrentFilter"] as string ?? "";
+    int? currentRegionId = ViewData["CurrentRegionId"] as int?;
+    string currentRegionName = ViewData["CurrentRegionName"] as string ?? "All Regions";
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Location Management</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Region" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Regions</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Locations</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success bg-success bg-opacity-10 border-0 mb-4">
+            <div class="d-flex align-items-center">
+                <i class="ri-checkbox-circle-line fs-20 me-2"></i>
+                <span>@TempData["SuccessMessage"]</span>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger bg-danger bg-opacity-10 border-0 mb-4">
+            <div class="d-flex align-items-center">
+                <i class="ri-error-warning-line fs-20 me-2"></i>
+                <span>@TempData["ErrorMessage"]</span>
+            </div>
+        </div>
+    }
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-4">
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <form asp-action="Index" method="get" class="position-relative table-src-form me-0">
+                        <input type="text" name="searchString" class="form-control" placeholder="Search locations..." value="@currentFilter">
+                        <button type="submit" class="border-0 bg-transparent position-absolute top-50 start-0 translate-middle-y">
+                            <i class="material-symbols-outlined">search</i>
+                        </button>
+                    </form>
+                    
+                    <div class="position-relative">
+                        <select name="regionId" id="regionFilter" class="form-select" onchange="filterByRegion(this.value)">
+                            <option value="">All Regions</option>
+                            @foreach (var region in (IEnumerable<SelectListItem>)ViewData["Regions"])
+                            {
+                                <option value="@region.Value" selected="@(currentRegionId.ToString() == region.Value)">@region.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                
+                <a asp-action="Create" asp-route-regionId="@currentRegionId" class="btn btn-outline-primary py-1 px-2 px-sm-4 fs-14 fw-medium rounded-3 hover-bg">
+                    <span class="py-sm-1 d-block">
+                        <i class="ri-add-line d-none d-sm-inline-block"></i>
+                        <span>Add New Location</span>
+                    </span>
+                </a>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-4" role="alert">
+                    <i class="ri-information-line me-2"></i> No locations found.
+                </div>
+            }
+            else
+            {
+                <div class="default-table-area style-two default-table-width">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Location Name</th>
+                                    <th scope="col">Region</th>
+                                    <th scope="col">Address</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Vehicles</th>
+                                    <th scope="col" class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>
+                                            <span class="fw-medium">@item.Name</span>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Region" asp-action="Details" asp-route-id="@item.RegionId" class="text-decoration-none">
+                                                @item.Region?.Name
+                                            </a>
+                                        </td>
+                                        <td>@(string.IsNullOrEmpty(item.Address) ? "-" : item.Address)</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">@item.Type.ToString()</span>
+                                        </td>
+                                        <td>
+                                            @if (item.AssignedVehicles != null && item.AssignedVehicles.Any())
+                                            {
+                                                <span class="badge bg-info text-white">@item.AssignedVehicles.Count vehicle(s)</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">0 vehicles</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-circle p-1" data-bs-toggle="tooltip" title="View Details">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-circle p-1" data-bs-toggle="tooltip" title="Edit">
+                                                    <i class="ri-pencil-line"></i>
+                                                </a>
+                                                @if (item.AssignedVehicles == null || !item.AssignedVehicles.Any())
+                                                {
+                                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-circle p-1" data-bs-toggle="tooltip" title="Delete">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-outline-secondary rounded-circle p-1 disabled" data-bs-toggle="tooltip" title="Cannot delete - has vehicles">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if (totalPages > 1)
+                {
+                    <div class="d-flex justify-content-between align-items-center p-4">
+                        <div class="fs-sm text-muted">
+                            Showing page @currentPage of @totalPages
+                        </div>
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="1" asp-route-searchString="@currentFilter" asp-route-regionId="@currentRegionId">First</a>
+                                </li>
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-searchString="@currentFilter" asp-route-regionId="@currentRegionId">
+                                        <i class="ri-arrow-left-s-line"></i>
+                                    </a>
+                                </li>
+                                
+                                @{
+                                    int startPage = Math.Max(1, currentPage - 2);
+                                    int endPage = Math.Min(totalPages, currentPage + 2);
+                                }
+                                
+                                @for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="Index" asp-route-page="@i" asp-route-searchString="@currentFilter" asp-route-regionId="@currentRegionId">@i</a>
+                                    </li>
+                                }
+                                
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-searchString="@currentFilter" asp-route-regionId="@currentRegionId">
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@totalPages" asp-route-searchString="@currentFilter" asp-route-regionId="@currentRegionId">Last</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            
+            // Auto-hide alerts after 3 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 3000);
+        });
+        
+        function filterByRegion(regionId) {
+            window.location.href = '@Url.Action("Index")?regionId=' + regionId + '&searchString=@currentFilter';
+        }
+    </script>
+}

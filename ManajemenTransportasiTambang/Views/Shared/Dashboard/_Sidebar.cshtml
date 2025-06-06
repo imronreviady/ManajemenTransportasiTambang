@@ -79,6 +79,13 @@
                     </a>
                 </li>
                 
+                <li class="menu-item">
+                    <a asp-area="" asp-controller="ActivityLog" asp-action="Index" class="menu-link @(Context.Request.Path.StartsWithSegments("/ActivityLog") ? "active" : "")">
+                        <span class="material-symbols-outlined menu-icon">history</span>
+                        <span class="title">Activity Logs</span>
+                    </a>
+                </li>
+                
                 <li class="menu-title small text-uppercase">
                     <span class="menu-title-text">MASTER DATA</span>
                 </li>
@@ -101,6 +108,20 @@
                     <a asp-area="" asp-controller="Maintenance" asp-action="Index" class="menu-link @(Context.Request.Path.StartsWithSegments("/Maintenance") ? "active" : "")">
                         <span class="material-symbols-outlined menu-icon">build</span>
                         <span class="title">Vehicle Maintenance</span>
+                    </a>
+                </li>
+                
+                <li class="menu-item">
+                    <a asp-area="" asp-controller="Region" asp-action="Index" class="menu-link @(Context.Request.Path.StartsWithSegments("/Region") ? "active" : "")">
+                        <span class="material-symbols-outlined menu-icon">map</span>
+                        <span class="title">Regions</span>
+                    </a>
+                </li>
+                
+                <li class="menu-item">
+                    <a asp-area="" asp-controller="Location" asp-action="Index" class="menu-link @(Context.Request.Path.StartsWithSegments("/Location") ? "active" : "")">
+                        <span class="material-symbols-outlined menu-icon">location_on</span>
+                        <span class="title">Locations</span>
                     </a>
                 </li>
                 

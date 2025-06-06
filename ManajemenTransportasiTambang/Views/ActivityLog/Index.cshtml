@@ -1,0 +1,261 @@
+@model IEnumerable<ManajemenTransportasiTambang.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Logs";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    int currentPage = ViewData["CurrentPage"] != null ? (int)ViewData["CurrentPage"] : 1;
+    int totalPages = ViewData["TotalPages"] != null ? (int)ViewData["TotalPages"] : 1;
+    int totalItems = ViewData["TotalItems"] != null ? (int)ViewData["TotalItems"] : 0;
+    string currentFilter = ViewData["CurrentFilter"] as string ?? "";
+    string currentModule = ViewData["CurrentModule"] as string ?? "";
+    string currentDateFrom = ViewData["CurrentDateFrom"] as string ?? "";
+    string currentDateTo = ViewData["CurrentDateTo"] as string ?? "";
+    var modules = ViewData["Modules"] as List<string> ?? new List<string>();
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Activity Logs</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Activity Logs</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-0">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-4">
+                <div class="d-flex gap-2 flex-wrap">
+                    <form asp-action="Index" method="get" class="position-relative table-src-form me-0">
+                        <input type="text" name="searchString" class="form-control" placeholder="Search logs..." value="@currentFilter">
+                        <button type="submit" class="border-0 bg-transparent position-absolute top-50 start-0 translate-middle-y">
+                            <i class="material-symbols-outlined">search</i>
+                        </button>
+                        
+                        @if (!string.IsNullOrEmpty(currentModule))
+                        {
+                            <input type="hidden" name="module" value="@currentModule">
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(currentDateFrom))
+                        {
+                            <input type="hidden" name="dateFrom" value="@currentDateFrom">
+                        }
+                        
+                        @if (!string.IsNullOrEmpty(currentDateTo))
+                        {
+                            <input type="hidden" name="dateTo" value="@currentDateTo">
+                        }
+                    </form>
+                    
+                    <a asp-action="Report" class="btn btn-outline-info py-1 px-2 px-sm-4 fs-14 fw-medium rounded-3 hover-bg">
+                        <span class="py-sm-1 d-block">
+                            <i class="material-symbols-outlined fs-18 align-middle me-1">assessment</i>
+                            <span>Generate Report</span>
+                        </span>
+                    </a>
+                </div>
+                
+                <button class="btn btn-outline-primary py-1 px-2 px-sm-4 fs-14 fw-medium rounded-3 hover-bg" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                    <span class="py-sm-1 d-block">
+                        <i class="ri-filter-3-line d-none d-sm-inline-block"></i>
+                        <span>Advanced Filters</span>
+                    </span>
+                </button>
+            </div>
+            
+            <div class="collapse @((!string.IsNullOrEmpty(currentModule) || !string.IsNullOrEmpty(currentDateFrom) || !string.IsNullOrEmpty(currentDateTo)) ? "show" : "")" id="filterCollapse">
+                <div class="p-4 pt-0">
+                    <form asp-action="Index" method="get" class="row g-3">
+                        @if (!string.IsNullOrEmpty(currentFilter))
+                        {
+                            <input type="hidden" name="searchString" value="@currentFilter">
+                        }
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">Module</label>
+                            <select name="module" class="form-select">
+                                <option value="">All Modules</option>
+                                @foreach (var module in modules)
+                                {
+                                    <option value="@module" selected="@(currentModule == module)">@module</option>
+                                }
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">Date From</label>
+                            <input type="date" name="dateFrom" value="@currentDateFrom" class="form-control">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label">Date To</label>
+                            <input type="date" name="dateTo" value="@currentDateTo" class="form-control">
+                        </div>
+                        
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ri-filter-line me-1"></i> Apply Filters
+                                </button>
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="ri-refresh-line me-1"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info m-4" role="alert">
+                    <i class="ri-information-line me-2"></i> No activity logs found matching your criteria.
+                </div>
+            }
+            else
+            {
+                <div class="default-table-area style-two default-table-width">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Timestamp</th>
+                                    <th scope="col">User</th>
+                                    <th scope="col">Action</th>
+                                    <th scope="col">Module</th>
+                                    <th scope="col">Details</th>
+                                    <th scope="col" class="text-center">Options</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                        <td>@item.Username</td>
+                                        <td>@item.Action</td>
+                                        <td>
+                                            <span class="badge bg-light text-dark">@item.Module</span>
+                                        </td>
+                                        <td>
+                                            @if (string.IsNullOrEmpty(item.Details))
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                            else
+                                            {
+                                                @if (item.Details.Length > 50)
+                                                {
+                                                    @(item.Details.Substring(0, 50) + "...")
+                                                }
+                                                else
+                                                {
+                                                    @item.Details
+                                                }
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center">
+                                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info rounded-circle p-1" data-bs-toggle="tooltip" title="View Details">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                                
+                                                @if (item.ReservationId.HasValue)
+                                                {
+                                                    <a asp-controller="VehicleReservation" asp-action="Details" asp-route-id="@item.ReservationId" class="btn btn-sm btn-outline-primary rounded-circle p-1 ms-1" data-bs-toggle="tooltip" title="View Related Reservation">
+                                                        <i class="ri-file-list-line"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center p-4">
+                    <div class="fs-sm text-muted">
+                        Showing @((currentPage - 1) * 15 + 1) to @(Math.Min(currentPage * 15, totalItems)) of @totalItems records
+                    </div>
+                    
+                    @if (totalPages > 1)
+                    {
+                        <nav>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="1" 
+                                       asp-route-searchString="@currentFilter"
+                                       asp-route-module="@currentModule"
+                                       asp-route-dateFrom="@currentDateFrom"
+                                       asp-route-dateTo="@currentDateTo">First</a>
+                                </li>
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" 
+                                       asp-route-searchString="@currentFilter"
+                                       asp-route-module="@currentModule"
+                                       asp-route-dateFrom="@currentDateFrom"
+                                       asp-route-dateTo="@currentDateTo">
+                                        <i class="ri-arrow-left-s-line"></i>
+                                    </a>
+                                </li>
+                                
+                                @{
+                                    int startPage = Math.Max(1, currentPage - 2);
+                                    int endPage = Math.Min(totalPages, currentPage + 2);
+                                }
+                                
+                                @for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="Index" asp-route-page="@i" 
+                                           asp-route-searchString="@currentFilter"
+                                           asp-route-module="@currentModule"
+                                           asp-route-dateFrom="@currentDateFrom"
+                                           asp-route-dateTo="@currentDateTo">@i</a>
+                                    </li>
+                                }
+                                
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" 
+                                       asp-route-searchString="@currentFilter"
+                                       asp-route-module="@currentModule"
+                                       asp-route-dateFrom="@currentDateFrom"
+                                       asp-route-dateTo="@currentDateTo">
+                                        <i class="ri-arrow-right-s-line"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-page="@totalPages" 
+                                       asp-route-searchString="@currentFilter"
+                                       asp-route-module="@currentModule"
+                                       asp-route-dateFrom="@currentDateFrom"
+                                       asp-route-dateTo="@currentDateTo">Last</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

@@ -1,0 +1,341 @@
+@model IEnumerable<ManajemenTransportasiTambang.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Activity Log Report";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    string currentModule = ViewData["CurrentModule"] as string ?? "";
+    string currentDateFrom = ViewData["CurrentDateFrom"] as string ?? "";
+    string currentDateTo = ViewData["CurrentDateTo"] as string ?? "";
+    var modules = ViewData["Modules"] as List<string> ?? new List<string>();
+    
+    var moduleStats = ViewData["ModuleStats"] as List<dynamic> ?? new List<dynamic>();
+    var userStats = ViewData["UserStats"] as List<dynamic> ?? new List<dynamic>();
+    var dateStats = ViewData["DateStats"] as List<dynamic> ?? new List<dynamic>();
+}
+
+<div class="main-content-container overflow-hidden">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <h3 class="mb-0">Activity Log Report</h3>
+
+        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+            <ol class="breadcrumb align-items-center mb-0 lh-1">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <i class="ri-home-4-line fs-18 text-primary me-1"></i>
+                        <span class="text-secondary fw-medium hover">Dashboard</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="ActivityLog" asp-action="Index" class="d-flex align-items-center text-decoration-none">
+                        <span class="text-secondary fw-medium hover">Activity Logs</span>
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    <span class="fw-medium">Report</span>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card bg-white border-0 rounded-3 mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Report" method="get" class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="form-label">Module</label>
+                    <select name="module" class="form-select">
+                        <option value="">All Modules</option>
+                        @foreach (var module in modules)
+                        {
+                            <option value="@module" selected="@(currentModule == module)">@module</option>
+                        }
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Date From</label>
+                    <input type="date" name="dateFrom" value="@currentDateFrom" class="form-control">
+                </div>
+                
+                <div class="col-md-3">
+                    <label class="form-label">Date To</label>
+                    <input type="date" name="dateTo" value="@currentDateTo" class="form-control">
+                </div>
+                
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ri-filter-line me-1"></i> Generate Report
+                    </button>
+                </div>
+            </form>
+            
+            <div class="alert alert-info">
+                <i class="ri-information-line me-2"></i> 
+                <strong>Report Period:</strong> 
+                @DateTime.Parse(currentDateFrom).ToString("MMMM d, yyyy") to @DateTime.Parse(currentDateTo).ToString("MMMM d, yyyy")
+                @if (!string.IsNullOrEmpty(currentModule))
+                {
+                    <span> | <strong>Module:</strong> @currentModule</span>
+                }
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Activity by Module</h6>
+                        </div>
+                        <div class="card-body">
+                            @if (moduleStats.Any())
+                            {
+                                <div class="chart-container" style="position: relative; height:300px;">
+                                    <canvas id="moduleChart"></canvas>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted my-5">No data available</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Activity by User</h6>
+                        </div>
+                        <div class="card-body">
+                            @if (userStats.Any())
+                            {
+                                <div class="chart-container" style="position: relative; height:300px;">
+                                    <canvas id="userChart"></canvas>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted my-5">No data available</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mb-5">
+                <div class="col-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">Daily Activity</h6>
+                        </div>
+                        <div class="card-body">
+                            @if (dateStats.Any())
+                            {
+                                <div class="chart-container" style="position: relative; height:300px;">
+                                    <canvas id="dateChart"></canvas>
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-center text-muted my-5">No data available</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h5 class="mb-3">Activity Log Details</h5>
+            
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="ri-information-line me-2"></i> No activity logs found matching your criteria.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle border">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">Timestamp</th>
+                                <th scope="col">User</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Module</th>
+                                <th scope="col">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td>@item.Username</td>
+                                    <td>@item.Action</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark">@item.Module</span>
+                                    </td>
+                                    <td>
+                                        @if (string.IsNullOrEmpty(item.Details))
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                        else
+                                        {
+                                            @if (item.Details.Length > 50)
+                                            {
+                                                @(item.Details.Substring(0, 50) + "...")
+                                            }
+                                            else
+                                            {
+                                                @item.Details
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <a href="javascript:window.print()" class="btn btn-outline-primary">
+                            <i class="ri-printer-line me-1"></i> Print Report
+                        </a>
+                        <a asp-action="Index" class="btn btn-outline-secondary ms-2">
+                            <i class="ri-arrow-go-back-line me-1"></i> Back to List
+                        </a>
+                    </div>
+                    <div class="text-muted">
+                        Total Records: @Model.Count()
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Module chart
+            @if (moduleStats.Any())
+            {
+                <text>
+                const moduleLabels = [@Html.Raw(string.Join(",", moduleStats.Select(x => $"'{x.Module}'")))];
+                const moduleData = [@Html.Raw(string.Join(",", moduleStats.Select(x => x.Count)))];
+                
+                new Chart(document.getElementById('moduleChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: moduleLabels,
+                        datasets: [{
+                            data: moduleData,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)',
+                                'rgba(255, 159, 64, 0.7)',
+                                'rgba(199, 199, 199, 0.7)',
+                                'rgba(83, 102, 255, 0.7)',
+                                'rgba(40, 159, 64, 0.7)',
+                                'rgba(210, 199, 199, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+            
+            // User chart
+            @if (userStats.Any())
+            {
+                <text>
+                const userLabels = [@Html.Raw(string.Join(",", userStats.Select(x => $"'{x.Username}'")))];
+                const userData = [@Html.Raw(string.Join(",", userStats.Select(x => x.Count)))];
+                
+                new Chart(document.getElementById('userChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: userLabels,
+                        datasets: [{
+                            label: 'Activities',
+                            data: userData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+            
+            // Date chart
+            @if (dateStats.Any())
+            {
+                <text>
+                const dateLabels = [@Html.Raw(string.Join(",", dateStats.Select(x => $"'{DateTime.Parse(x.Date.ToString()).ToString("MM/dd")}'")))];
+                const dateData = [@Html.Raw(string.Join(",", dateStats.Select(x => x.Count)))];
+                
+                new Chart(document.getElementById('dateChart'), {
+                    type: 'line',
+                    data: {
+                        labels: dateLabels,
+                        datasets: [{
+                            label: 'Activities',
+                            data: dateData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true,
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+}
+
