@@ -39,6 +39,14 @@ public class VehicleReservation
     public int DriverId { get; set; }
     public Driver? Driver { get; set; }
     
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    
+    public DateTime LastModified { get; set; } = DateTime.Now;
+    
+    public string? CreatedBy { get; set; }
+    
+    public string? ModifiedBy { get; set; }
+    
     // Navigation properties
     public ICollection<ReservationApproval>? Approvals { get; set; }
     public ICollection<ActivityLog>? ActivityLogs { get; set; }

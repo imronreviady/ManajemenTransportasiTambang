@@ -14,6 +14,14 @@ public class ReservationApproval
     
     public string? Comments { get; set; }
     
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    
+    public DateTime LastModified { get; set; } = DateTime.Now;
+    
+    public string? CreatedBy { get; set; }
+    
+    public string? ModifiedBy { get; set; }
+    
     // Foreign keys
     public int ReservationId { get; set; }
     public VehicleReservation? Reservation { get; set; }

@@ -106,6 +106,12 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                driver.CreatedAt = DateTime.Now;
+                driver.LastModified = DateTime.Now;
+                driver.CreatedBy = User.Identity?.Name;
+                driver.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(driver);
                 await _context.SaveChangesAsync();
                 
@@ -153,6 +159,19 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing driver to preserve CreatedAt and CreatedBy
+                    var existingDriver = await _context.Drivers.AsNoTracking().FirstOrDefaultAsync(d => d.Id == id);
+                    if (existingDriver != null)
+                    {
+                        // Preserve creation information
+                        driver.CreatedAt = existingDriver.CreatedAt;
+                        driver.CreatedBy = existingDriver.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    driver.LastModified = DateTime.Now;
+                    driver.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(driver);
                     await _context.SaveChangesAsync();
                     

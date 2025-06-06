@@ -115,6 +115,12 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                vehicle.CreatedAt = DateTime.Now;
+                vehicle.LastModified = DateTime.Now;
+                vehicle.CreatedBy = User.Identity?.Name;
+                vehicle.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(vehicle);
                 await _context.SaveChangesAsync();
                 
@@ -164,6 +170,19 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing vehicle to preserve CreatedAt and CreatedBy
+                    var existingVehicle = await _context.Vehicles.AsNoTracking().FirstOrDefaultAsync(v => v.Id == id);
+                    if (existingVehicle != null)
+                    {
+                        // Preserve creation information
+                        vehicle.CreatedAt = existingVehicle.CreatedAt;
+                        vehicle.CreatedBy = existingVehicle.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    vehicle.LastModified = DateTime.Now;
+                    vehicle.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(vehicle);
                     await _context.SaveChangesAsync();
                     

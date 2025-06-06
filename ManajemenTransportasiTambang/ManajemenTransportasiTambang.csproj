@@ -31,4 +31,27 @@
       <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\banner-bg.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\banner-img.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\contact-us.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\logo.svg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-1.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-2.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-3.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-4.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-5.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\shape-6.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\tailor-img.png" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\team-1.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\team-2.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\team-3.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-1.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-2.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-3.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-4.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-5.jpg" />
+      <_ContentIncludedByDefault Remove="wwwroot\images\landing\testimonial-6.jpg" />
+    </ItemGroup>
+
 </Project>

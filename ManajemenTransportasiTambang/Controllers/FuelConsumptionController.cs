@@ -127,16 +127,24 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                fuelRecord.CreatedAt = DateTime.Now;
+                fuelRecord.LastModified = DateTime.Now;
+                fuelRecord.CreatedBy = User.Identity?.Name;
+                fuelRecord.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(fuelRecord);
                 await _context.SaveChangesAsync();
                 
                 var user = await _context.Users.FindAsync(User.Identity?.Name);
+                var vehicle = await _context.Vehicles.FindAsync(fuelRecord.VehicleId);
+                
                 await _logService.LogActivityAsync(
                     user?.Id ?? "System",
                     user?.UserName ?? "System",
                     "Create",
-                    "FuelConsumptionRecord",
-                    $"Created fuel record for vehicle ID {fuelRecord.VehicleId} - {fuelRecord.Quantity}L at cost {fuelRecord.Cost:C}",
+                    "FuelConsumption",
+                    $"Added fuel record of {fuelRecord.Quantity}L for vehicle {vehicle?.RegistrationNumber ?? "Unknown"}",
                     fuelRecord.Id
                 );
                 
@@ -198,16 +206,32 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing record to preserve CreatedAt and CreatedBy
+                    var existingRecord = await _context.FuelConsumptionRecords.AsNoTracking()
+                        .FirstOrDefaultAsync(f => f.Id == id);
+                    if (existingRecord != null)
+                    {
+                        // Preserve creation information
+                        fuelRecord.CreatedAt = existingRecord.CreatedAt;
+                        fuelRecord.CreatedBy = existingRecord.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    fuelRecord.LastModified = DateTime.Now;
+                    fuelRecord.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(fuelRecord);
                     await _context.SaveChangesAsync();
                     
                     var user = await _context.Users.FindAsync(User.Identity?.Name);
+                    var vehicle = await _context.Vehicles.FindAsync(fuelRecord.VehicleId);
+                    
                     await _logService.LogActivityAsync(
                         user?.Id ?? "System",
                         user?.UserName ?? "System",
                         "Update",
-                        "FuelConsumptionRecord",
-                        $"Updated fuel record ID {fuelRecord.Id} for vehicle ID {fuelRecord.VehicleId}",
+                        "FuelConsumption",
+                        $"Updated fuel record of {fuelRecord.Quantity}L for vehicle {vehicle?.RegistrationNumber ?? "Unknown"}",
                         fuelRecord.Id
                     );
                     

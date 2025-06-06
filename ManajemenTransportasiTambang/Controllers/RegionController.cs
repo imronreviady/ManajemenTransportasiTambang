@@ -96,6 +96,12 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                region.CreatedAt = DateTime.Now;
+                region.LastModified = DateTime.Now;
+                region.CreatedBy = User.Identity?.Name;
+                region.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(region);
                 await _context.SaveChangesAsync();
                 
@@ -147,6 +153,20 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing region to preserve CreatedAt and CreatedBy
+                    var existingRegion = await _context.Regions.AsNoTracking()
+                        .FirstOrDefaultAsync(r => r.Id == id);
+                    if (existingRegion != null)
+                    {
+                        // Preserve creation information
+                        region.CreatedAt = existingRegion.CreatedAt;
+                        region.CreatedBy = existingRegion.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    region.LastModified = DateTime.Now;
+                    region.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(region);
                     await _context.SaveChangesAsync();
                     
@@ -243,4 +263,3 @@ namespace ManajemenTransportasiTambang.Controllers
         }
     }
 }
-

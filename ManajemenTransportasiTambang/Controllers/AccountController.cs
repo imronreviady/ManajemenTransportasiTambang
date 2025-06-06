@@ -123,6 +123,61 @@ public class AccountController : Controller
         return View(model);
     }
 
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(ProfileViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Update user profile information
+        user.FullName = model.FullName;
+        user.Department = model.Department;
+        user.Position = model.Position;
+        user.PhoneNumber = model.PhoneNumber;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded)
+        {
+            // Log activity
+            if (_logService != null)
+            {
+                await _logService.LogActivityAsync(
+                    user.Id,
+                    user.UserName ?? "Unknown",
+                    "Update",
+                    "Profile",
+                    "Updated personal profile information",
+                    null,
+                    HttpContext.Connection.RemoteIpAddress?.ToString()
+                );
+            }
+
+            TempData["StatusMessage"] = "Profile has been updated successfully";
+            TempData["StatusType"] = "Success";
+        }
+        else
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            TempData["StatusMessage"] = "Error updating profile";
+            TempData["StatusType"] = "Error";
+        }
+
+        return View(model);
+    }
+
     [HttpGet]
     [Authorize]
     public IActionResult ChangePassword()

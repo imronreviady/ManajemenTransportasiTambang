@@ -129,9 +129,16 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                location.CreatedAt = DateTime.Now;
+                location.LastModified = DateTime.Now;
+                location.CreatedBy = User.Identity?.Name;
+                location.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(location);
                 await _context.SaveChangesAsync();
                 
+                // Log activity
                 var user = await _context.Users.FindAsync(User.Identity?.Name);
                 await _logService.LogActivityAsync(
                     user?.Id ?? "System",
@@ -188,6 +195,20 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing location to preserve CreatedAt and CreatedBy
+                    var existingLocation = await _context.Locations.AsNoTracking()
+                        .FirstOrDefaultAsync(l => l.Id == id);
+                    if (existingLocation != null)
+                    {
+                        // Preserve creation information
+                        location.CreatedAt = existingLocation.CreatedAt;
+                        location.CreatedBy = existingLocation.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    location.LastModified = DateTime.Now;
+                    location.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(location);
                     await _context.SaveChangesAsync();
                     
@@ -289,4 +310,3 @@ namespace ManajemenTransportasiTambang.Controllers
         }
     }
 }
-

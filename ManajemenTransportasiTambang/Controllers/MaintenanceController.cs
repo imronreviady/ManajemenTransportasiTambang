@@ -115,6 +115,12 @@ namespace ManajemenTransportasiTambang.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Set audit properties
+                maintenanceRecord.CreatedAt = DateTime.Now;
+                maintenanceRecord.LastModified = DateTime.Now;
+                maintenanceRecord.CreatedBy = User.Identity?.Name;
+                maintenanceRecord.ModifiedBy = User.Identity?.Name;
+                
                 _context.Add(maintenanceRecord);
                 await _context.SaveChangesAsync();
                 
@@ -181,21 +187,36 @@ namespace ManajemenTransportasiTambang.Controllers
             {
                 try
                 {
+                    // Get the existing record to preserve CreatedAt and CreatedBy
+                    var existingRecord = await _context.MaintenanceRecords.AsNoTracking()
+                        .FirstOrDefaultAsync(m => m.Id == id);
+                    if (existingRecord != null)
+                    {
+                        // Preserve creation information
+                        maintenanceRecord.CreatedAt = existingRecord.CreatedAt;
+                        maintenanceRecord.CreatedBy = existingRecord.CreatedBy;
+                    }
+                    
+                    // Update audit fields
+                    maintenanceRecord.LastModified = DateTime.Now;
+                    maintenanceRecord.ModifiedBy = User.Identity?.Name;
+                    
                     _context.Update(maintenanceRecord);
                     await _context.SaveChangesAsync();
                     
                     var user = await _context.Users.FindAsync(User.Identity?.Name);
+                    var vehicle = await _context.Vehicles.FindAsync(maintenanceRecord.VehicleId);
+                    
                     await _logService.LogActivityAsync(
                         user?.Id ?? "System",
                         user?.UserName ?? "System",
                         "Update",
                         "MaintenanceRecord",
-                        $"Updated maintenance record ID {maintenanceRecord.Id} for vehicle ID {maintenanceRecord.VehicleId}",
+                        $"Updated maintenance record for {vehicle?.RegistrationNumber ?? "Unknown Vehicle"} on {maintenanceRecord.ServiceDate:yyyy-MM-dd}",
                         maintenanceRecord.Id
                     );
                     
                     // Check if we need to update the vehicle's last service date and next due date
-                    var vehicle = await _context.Vehicles.FindAsync(maintenanceRecord.VehicleId);
                     if (vehicle != null)
                     {
                         // Get all maintenance records for this vehicle

@@ -149,11 +149,17 @@ public class VehicleReservationController : Controller
                 return View(reservation);
             }
 
-            // Set the requester ID
+            // Set the requester ID and audit properties
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
                 reservation.RequesterId = user.Id;
+                
+                // Set audit properties
+                reservation.CreatedAt = DateTime.Now;
+                reservation.LastModified = DateTime.Now;
+                reservation.CreatedBy = user.UserName;
+                reservation.ModifiedBy = user.UserName;
 
                 // Create the reservation with approvers
                 await _reservationService.CreateReservationAsync(reservation, approverIds);
