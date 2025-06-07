@@ -43,6 +43,16 @@ Sistem Manajemen Transportasi Tambang adalah aplikasi berbasis web untuk mengelo
 
 <img src=".//ManajemenTransportasiTambang/wwwroot/flowchart.png" alt="Flowchart" width="600" />
 
+## Default User Accounts
+
+The system comes pre-configured with the following user accounts:
+
+| Username  | Password    | Role     | Description                  |
+|-----------|-------------|----------|------------------------------|
+| admin     | Admin123!   | Admin    | System administrator         |
+| approver1 | Approve123! | Approver | First level approval (Operations Manager) |
+| approver2 | Approve123! | Approver | Second level approval (Fleet Director) |
+
 ## Teknologi
 - ASP.NET Core MVC (.NET 9)
 - Entity Framework Core
